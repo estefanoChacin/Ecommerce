@@ -1,0 +1,297 @@
+﻿
+@{
+    ViewBag.Title = "Usuarios";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<ol class="breadcrumb mb-4 mt-4">
+    <li class="breadcrumb-item"><a href="index.html">Resumen</a></li>
+    <li class="breadcrumb-item active">Usuarios</li>
+</ol>
+
+<div class="card">
+    <div class="card col-12 p-3">
+        <div class="card-header">
+            <i class="fas fa-users me-1"></i>Lista de Usuarios
+        </div>
+        <div class="card-body">
+            <a href="#" class="btn btn-success" onclick="abrirModal(null)">Crear Nuevo</a>
+        </div>
+        <hr />
+        <table id="tableUsuarios" class="w-100 table table-striped table-hover table-borderless">
+            <thead class="table-info">
+                <tr>
+                    <th>Nombres</th>
+                    <th>Apellidos</th>
+                    <th>Correo</th>
+                    <th>Activo</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade " id="formModal" tabindex="-1" data-bs-backdrop="static" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-dark">
+                <h1 class="modal-title fs-5 text-white" id="exampleModalLabel"> usuario</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="row ms-6">
+                        <div class="col-6">
+                            <input type="hidden" id="txtID" />
+                            <label for="txtNombres" class="form-label">Nombres</label>
+                            <input type="text" class="form-control" id="txtNombres">
+                        </div>
+                        <div class="col-6">
+                            <label for="txtApellidos" class="form-label">Apellidos</label>
+                            <input type="text" class="form-control" id="txtApellidos">
+                        </div>
+                    </div>
+                    <div class="loader"></div>
+                    <div class="row ms-6">
+                        <div class="col-6">
+                            <label for="txtCorreo" class="form-label">Correo</label>
+                            <input type="email" class="form-control" id="txtCorreo">
+                        </div>
+                        <div class="col-6">
+                            <label for="txtActivo" class="form-label">Activo</label>
+                            <select class="form-select" id="txtActivo">
+                                <option value="1">Si</option>
+                                <option value="0">No</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-success" onclick="guardar()">Actualizar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+
+@section scripts{
+    <script>
+        var table;
+        var filaSelected
+        var status = "";
+        //==============================================================================
+        //CARGA LOS DATOS EN LA TABLA DESDE LA BD EMPLEA LA LIBRERIA JQUERY.DATATABLE
+        //==============================================================================
+
+        table = $('#tableUsuarios').DataTable({
+            responsive: true,
+            ordering: false,
+            "ajax": {
+                url: '@Url.Action("ListarUsuarios", "Home")',
+                type: "GET",
+                dateType: "json"
+            },
+            "columns": [
+                { "data": "NOMBRES" },
+                { "data": "APELLIDOS" },
+                { "data": "CORREO" },
+                {
+                    "data": "ACTIVO", "render": function (valor) {
+                        if (valor) { return "Si" }
+                        else { return "No" }
+                    }
+                },
+                {
+                    "defaultContent": ' <a href="#" class="btn btn-primary btn-sm btn-editar"> <i class="fas fa-pen me-1"></i></a>' +
+                        ' <a href="#" onclick="EliminarUsuario()" class="btn btn-danger btn-sm ms-2 btn-eliminar"> <i class="fas fa-trash me-1"></i></a>',
+                    "orderable": false,
+                    "searchable": false,
+                    "with": "90px"
+                }
+
+            ],
+            "language": {
+                "url": "https://cdn.datatables.net/plug-ins/1.13.2/i18n/es-ES.json"
+            }
+        });
+
+
+
+
+
+        //==============================================================================
+        //FUNCION PARA ABRIR LA MODAL EN CASO DE EDITAR RECIBE LOS DATOS EN JOSN
+        //==============================================================================
+
+        function abrirModal(json) {
+
+            $("#txtID").val("")
+            $("#txtNombres").val("")
+            $("#txtApellidos").val("")
+            $("#txtCorreo").val("")
+            $("#txtActivo").val("");
+
+            if (json != null) {
+                if (json.IDUSUARIO == "") {
+                    Usuario.id = 0;
+                } 
+                $("#txtID").val(json.IDUSUARIO)
+                $("#txtNombres").val(json.NOMBRES)
+                $("#txtApellidos").val(json.APELLIDOS)
+                $("#txtCorreo").val(json.CORREO)
+                $("#txtActivo").val(json.ACTIVO == true ? 1 : 0);
+
+            }
+
+            $("#formModal").modal("show");
+        }
+
+
+
+
+        //==============================================================================
+        //FUNCION PARA EDITAR Y CREAR USUARIOS
+        //==============================================================================
+        function guardar() {
+            var Usuario = {
+                IDUSUARIO: $("#txtID").val(),
+                NOMBRES: $("#txtNombres").val(),
+                APELLIDOS: $("#txtApellidos").val(),
+                CORREO: $("#txtCorreo").val(),
+                ACTIVO: $("#txtActivo").val() == 1 ? true : false
+            } 
+
+            status = "n"
+            loader(status)
+            fetch('@Url.Action("GuardarUsuario", "Home")', {
+                method: "POST",
+                body: JSON.stringify({ obj: Usuario }),
+                headers: { "Content-type": "application/json; charset=UTF-8" }
+            })
+                .then(response => response.json())
+                .then(json => {
+                    json;
+                    status = "y";
+                    loader(status)
+                    if (json.resultado == 0) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: json.mensaje,
+                            footer: ''
+                        })
+                    } else {
+                        Swal.fire({
+                            position: 'center',
+                            icon: 'success',
+                            title: json.mensaje,
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+
+                        if ($("#txtID").val() == "") {
+
+                            table.row.add(Usuario).draw(false)
+                        }
+                        else {
+
+                            table.row(filaSelected).data(Usuario).draw(false);
+                        }
+                    }
+                
+
+            })
+                .catch(err => console.log(err))
+        }
+
+        //==============================================================================
+        //FUNCION PARA ELIMINAR UN USUARIO
+        //==============================================================================
+
+        function EliminarUsuario() {
+            var Usuario
+            var filaSelected;
+            $("#tableUsuarios tbody").on("click", ".btn-eliminar", function () {
+                filaSelected = $(this).closest("tr");
+                 Usuario = table.row(filaSelected).data();
+                console.log(Usuario)
+            })
+
+            Swal.fire(
+                'Esta seguro?',
+                'Eliminara un usuario permanentemente!',
+                'question',
+            )
+                .then(resultado => {
+                    if (resultado.value) {
+                        fetch('@Url.Action("Eliminar", "Home")', {
+                            method: "POST",
+                            body: JSON.stringify({ obj: Usuario }),
+                            headers: { "Content-type": "application/json; charset=UTF-8" }
+                        })
+                            .then(Response => Response.json())
+                            .then(data => {
+
+                                if (data.resultado == true) {
+                                    Swal.fire({
+                                        position: 'center',
+                                        icon: 'success',
+                                        title: "Usuario eliminado correctamente",
+                                        showConfirmButton: false,
+                                        timer: 1500
+                                    })
+                                    table.row(filaSelected).remove().draw()
+                                } else {
+                                    Swal.fire({
+                                        position: 'center',
+                                        icon: 'success',
+                                        title: data.mensaje,
+                                        showConfirmButton: false,
+                                        timer: 1500
+                                    })
+                                }
+                            }).catch (err => { console.log(err) })
+                        
+                    }
+                });
+            
+        }
+
+
+
+        function loader(status) {
+            if (status == "n") {
+                $(".loader").addClass('spinner');
+            } else if (status == "y") {
+                $(".loader").removeClass('spinner');
+                $("#formModal").modal("hide");
+            }
+        }
+
+
+
+        //==============================================================================
+        //EXTRAE LOS DATOS DE LA TABLA Y LOS INSERTA EN LA MODAL
+        //==============================================================================
+        $("#tableUsuarios tbody").on("click", ".btn-editar", function () {
+            filaSelected = $(this).closest("tr");
+            var data = table.row(filaSelected).data();
+            console.log(data)
+            abrirModal(data);
+        })
+
+
+    </script>
+
+}

@@ -1,0 +1,270 @@
+﻿
+@{
+    ViewBag.Title = "Categorias";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<ol class="breadcrumb mb-4 mt-4">
+    <li class="breadcrumb-item"><a href="index.html">Mantenedor</a></li>
+    <li class="breadcrumb-item active">Categorias</li>
+</ol>
+
+<div class="card">
+    <div class="card col-12 p-3">
+        <div class="card-header">
+            <i class="fas fa-table me-1"></i>Lista de Categorias
+        </div>
+        <div class="card-body">
+            <a href="#" class="btn btn-success" onclick="abrirModal(null)">Crear Nueva</a>
+        </div>
+        <hr />
+        <table id="tableCategorias" class="w-100 table table-striped table-hover table-borderless">
+            <thead class="table-warning">
+                <tr>
+                    <th>Descripcion</th>
+                    <th>Activo</th>
+                    <th></th>
+
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+
+</div>
+
+<!-- Modal -->
+<div class="modal fade " id="formModal" tabindex="-1" data-bs-backdrop="static" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-dark">
+                <h1 class="modal-title fs-5 text-white" id="exampleModalLabel">Categoria</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="loader"></div>
+                    <div class="row ms-6">
+                        <div class="col-6">
+                            <input type="hidden" class="form-control" id="txtID">
+                            <label for="txtDescripcion" class="form-label">Descripcion</label>
+                            <input type="text" class="form-control" id="txtDescripcion">
+                        </div>
+                        <div class="col-6">
+                            <label for="txtActivo" class="form-label">Activo</label>
+                            <select class="form-select" id="txtActivo">
+                                <option value="1">Si</option>
+                                <option value="0">No</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-success" onclick="guardar()">Actualizar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+@section scripts{
+    <script>
+        var table;
+        var filaSelected
+        var status = "";
+        //==============================================================================
+        //CARGA LOS DATOS EN LA TABLA DESDE LA BD EMPLEA LA LIBRERIA JQUERY.DATATABLE
+        //==============================================================================
+
+        table = $('#tableCategorias').DataTable({
+            responsive: true,
+            ordering: false,
+            "ajax": {
+                url: '@Url.Action("ListarCategoria", "Mantenedor")',
+                type: "GET",
+                dateType: "json"
+            },
+            "columns": [
+                { "data": "DESCRIPCION" },
+                {
+                    "data": "ACTIVO", "render": function (valor) {
+                        if (valor) { return "Si" }
+                        else { return "No" }
+                    }
+                },
+                {
+                    "defaultContent": ' <a href="#" class="btn btn-primary btn-sm btn-editar"> <i class="fas fa-pen me-1"></i></a>' +
+                        ' <a href="#" onclick="EliminarCategoria()" class="btn btn-danger btn-sm ms-2 btn-eliminar"> <i class="fas fa-trash me-1"></i></a>',
+                    "orderable": false,
+                    "searchable": false,
+                    "with": "90px"
+                }
+                
+
+            ],
+            "language": {
+                "url": "https://cdn.datatables.net/plug-ins/1.13.2/i18n/es-ES.json"
+            }
+        });
+
+
+
+
+        //==============================================================================
+        //FUNCION PARA ABRIR LA MODAL EN CASO DE EDITAR RECIBE LOS DATOS EN JOSN
+        //==============================================================================
+
+        function abrirModal(json) {
+
+            $("#txtID").val("")
+            $("#txtDescripcion").val("")
+            $("#txtActivo").val("")
+
+            if (json != null) {
+                $("#txtID").val(json.IDCATEGORIA)
+                $("#txtDescripcion").val(json.DESCRIPCION)
+                $("#txtActivo").val(json.ACTIVO == true ? 1 : 0);
+            }
+
+            $("#formModal").modal("show");
+        }
+
+
+
+
+        //==============================================================================
+        //FUNCION PARA EDITAR Y CREAR USUARIOS
+        //==============================================================================
+        function guardar() {
+            var Categoria = {
+                IDCATEGORIA: $("#txtID").val(),
+                DESCRIPCION: $("#txtDescripcion").val(),
+                ACTIVO: $("#txtActivo").val() == 1 ? true : false
+            }
+
+            status = "n"
+            loader(status)
+            fetch('@Url.Action("Guardar", "Mantenedor")', {
+                method: "POST",
+                body: JSON.stringify({ obj: Categoria }),
+                headers: { "Content-type": "application/json; charset=UTF-8" }
+            })
+                .then(response => response.json())
+                .then(json => {
+                    json;
+                    status = "y";
+                    loader(status)
+                    if (json.resultado == 0) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: json.mensaje,
+                            footer: ''
+                        })
+                    } else {
+                        Swal.fire({
+                            position: 'center',
+                            icon: 'success',
+                            title: json.mensaje,
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+                        let txtID = $("#txtID").val(); 
+                        if (txtID == "") {
+                            table.row.add(Categoria).draw(false)
+                        }
+                        else {
+
+                            table.row(filaSelected).data(Categoria).draw(false);
+                        }
+                    }
+
+
+            })
+                .catch(err => console.log(err))
+        }
+
+        //==============================================================================
+        //FUNCION PARA ELIMINAR UN USUARIO
+        //==============================================================================
+
+        function EliminarCategoria() {
+            var Categoria
+            var filaSelected;
+            $("#tableCategorias tbody").on("click", ".btn-eliminar", function () {
+                filaSelected = $(this).closest("tr");
+                Categoria = table.row(filaSelected).data();
+
+            })
+
+            Swal.fire(
+                'Esta seguro?',
+                'Eliminara un usuario permanentemente!',
+                'question',
+            )
+                .then(resultado => {
+                    if (resultado.value) {
+                        fetch('@Url.Action("EliminarCategoria", "Mantenedor")', {
+                            method: "POST",
+                            body: JSON.stringify({ obj: Categoria }),
+                            headers: { "Content-type": "application/json; charset=UTF-8" }
+                        })
+                            .then(Response => Response.json())
+                            .then(data => {
+
+                                if (data.resultado == true) {
+                                    Swal.fire({
+                                        position: 'center',
+                                        icon: 'success',
+                                        title: data.mensaje,
+                                        showConfirmButton: false,
+                                        timer: 1500
+                                    })
+                                    table.row(filaSelected).remove().draw()
+                                } else {
+                                    Swal.fire({
+                                        position: 'center',
+                                        icon: 'success',
+                                        title: data.mensaje,
+                                        showConfirmButton: false,
+                                        timer: 1500
+                                    })
+                                }
+                            }).catch (err => { console.log(err) })
+
+                    }
+                });
+
+        }
+
+
+
+        function loader(status) {
+            if (status == "n") {
+                $(".loader").addClass('spinner');
+            } else if (status == "y") {
+                $(".loader").removeClass('spinner');
+                $("#formModal").modal("hide");
+            }
+        }
+
+
+
+        //==============================================================================
+        //EXTRAE LOS DATOS DE LA TABLA Y LOS INSERTA EN LA MODAL
+        //==============================================================================
+        $("#tableCategorias tbody").on("click", ".btn-editar", function () {
+            filaSelected = $(this).closest("tr");
+            var data = table.row(filaSelected).data();
+            console.log(data)
+            abrirModal(data);
+        })
+    </script>
+
+
+    }
