@@ -15,6 +15,7 @@ using DataTable = System.Data.DataTable;
 
 namespace CapaPresentacionAdmin.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         public ActionResult Index()
@@ -89,7 +90,9 @@ namespace CapaPresentacionAdmin.Controllers
 
 
 
-
+        //======================================================================================
+        //    RETORNA UN JSON DE LAS VENTAS CON LOS FILTROS APLICADOS PARA LLENAR LA TABLA 
+        //======================================================================================
         public JsonResult VerReporteVentas(string fechaInicio, string fechaFinal, string IdTransaccion)
         {
             List<Reporte> lista = new CN_DashBoard().ReporteVentas(fechaInicio, fechaFinal, IdTransaccion);

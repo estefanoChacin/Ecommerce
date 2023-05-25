@@ -9,9 +9,13 @@ namespace CapaPresentacionTienda
         public static void RegisterBundles(BundleCollection bundles)
         {
             bundles.Add(new Bundle("~/bundles/jquery").Include(
-                        "~/Scripts/jquery-{version}.js"));
-
-            //bundles.Add(new Bundle("~/bundles/jqueryval").Include(
+                                   "~/Scripts/jquery-{version}.js"));
+            bundles.Add(new Bundle("~/bundles/complementos").Include(
+                        "~/Scripts/scripts.js",
+                        "~/Scripts/fontawesome/all.min.js",
+                         "~/Scripts/loadingoverlay.min.js",
+                         "~/Scripts/sweetalert.js"));
+            //bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
             //            "~/Scripts/jquery.validate*"));
 
             //// Utilice la versión de desarrollo de Modernizr para desarrollar y obtener información sobre los formularios.  De esta manera estará
@@ -20,11 +24,13 @@ namespace CapaPresentacionTienda
             //            "~/Scripts/modernizr-*"));
 
             bundles.Add(new Bundle("~/bundles/bootstrap").Include(
-                      "~/Scripts/bootstrap.js"));
+                      "~/Scripts/bootstrap.bundle.js"));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                 "~/Content/site.css",
+                "~/Content/sweetalert.css",
                 "~/Content/bootstrap.css"
-                ));}
+                ));
+        }
     }
 }

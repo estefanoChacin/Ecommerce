@@ -12,7 +12,9 @@ namespace CapaNegocio
     {
         private CD_Marcas objMarca = new CD_Marcas();
 
-
+        //==============================================================================================================
+        //   OBTIENE UNA LISTA DE TODAS LA MARCAS ACTUALMENTE REGISTRADAS EN LA BD
+        //==============================================================================================================
         public List<Marca> Obtenermarcas()
         {
 
@@ -20,11 +22,9 @@ namespace CapaNegocio
         }
 
 
-
-
-
-
-
+        //==============================================================================================================
+        //   REGISTRAR LAS MARCAS EN LA BASE DE DATOS
+        //==============================================================================================================
         public int RegistrarMarca(Marca marca, out string mensaje)
         {
             mensaje = string.Empty;
@@ -43,7 +43,9 @@ namespace CapaNegocio
         }
 
 
-
+        //==============================================================================================================
+        //   EDITAR LAS MARCAS EN LA BASE DE DATOS
+        //==============================================================================================================
         public int EditarMarca(Marca marca, out string mensaje)
         {
             mensaje = string.Empty;
@@ -61,6 +63,10 @@ namespace CapaNegocio
             return resultado;
         }
 
+
+        //==============================================================================================================
+        //   PERMITE ELIMINAR UNA MARCA DE LA BD SEGUN EL ID SELECCIONADO
+        //==============================================================================================================
         public bool Eliminar(int id, out string mensaje) { 
             mensaje = string.Empty;
             bool status = false;
@@ -68,6 +74,14 @@ namespace CapaNegocio
             status = new CD_Marcas().Eliminar(id, out mensaje);
 
             return status;
+        }
+
+        //==============================================================================================================
+        //   PERMITE LISTAR LAS MARCAS SEGUN LA CATEGORIA SELECCIONADA
+        //==============================================================================================================
+        public List<Marca> ListarMarcasPorCategorias(int idCategoria)
+        {
+            return objMarca.ObtenerMarcasPorCategorias(idCategoria);
         }
     }
 }

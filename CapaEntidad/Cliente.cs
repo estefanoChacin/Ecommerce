@@ -13,6 +13,8 @@ namespace CapaEntidad
         public string APELLIDOS { get; set; }
         public string CORREO { get; set; }
         public string CLAVE { get; set; }
+        public string CONFIRMAR_CLAVE { get; set; }
+
         public bool RESTABLECER { get; set; }
         public bool ACTIVO { get; set; }
 

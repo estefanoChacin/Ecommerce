@@ -15,6 +15,7 @@ using System.Web.UI.WebControls;
 
 namespace CapaPresentacionAdmin.Controllers
 {
+    [Authorize]
     public class MantenedorController : Controller
     {
         // GET: Mantenedor

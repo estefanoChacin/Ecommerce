@@ -73,7 +73,9 @@ namespace CapaDatos
         }
 
 
-
+        //=======================================================================
+        // REGISTRA UN PRODUCTO EN LA BASE DE DATOS
+        //=======================================================================
         public int RegistrarProdcuto(Producto obj, out string mensaje) {
             int idGenerado = 0;
             mensaje = string.Empty;

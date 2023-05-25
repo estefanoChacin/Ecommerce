@@ -123,7 +123,7 @@ namespace CapaNegocio
             string nuevaClave = CN_Recursos.GenerarClave();
             string claveEncriptada = CN_Recursos.ConvertirSha256(nuevaClave);
 
-            bool resultado = objCapaDatos.RestablecerClave(id, nuevaClave, out mensaje);
+            bool resultado = objCapaDatos.RestablecerClave(id, claveEncriptada, out mensaje);
 
             if (resultado)
             {
@@ -138,14 +138,16 @@ namespace CapaNegocio
                 }
                 else
                 {
-                    return false;
+                    
                     mensaje = "no se pudo enviar el correo";
+                    return false;
                 }
             }
             else 
             {
-                return false;
+                
                 mensaje = "no se pudo reestablecer la clave";
+                return false;
             }
         }
 

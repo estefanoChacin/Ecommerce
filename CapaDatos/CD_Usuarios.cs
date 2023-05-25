@@ -205,9 +205,9 @@ namespace CapaDatos
             {
                 using (SqlConnection conexion = new SqlConnection(Conexion.getConexion))
                 {
-                    SqlCommand cmd = new SqlCommand("UPDATE USUARIO SET CLAVE=@NUEVACLAVE, RESTABLECER=0 WHERE=IDUSUARIO=@ID", conexion);
+                    SqlCommand cmd = new SqlCommand("UPDATE USUARIO SET CLAVE = @NUEVACLAVE, RESTABLECER = 0 WHERE IDUSUARIO = @ID", conexion);
 
-                    cmd.Parameters.AddWithValue("NUEVACLAVE", nuevaClave);
+                    cmd.Parameters.AddWithValue("@NUEVACLAVE", nuevaClave);
                     cmd.Parameters.AddWithValue("@ID", id);
                     cmd.CommandType = CommandType.Text;
 
@@ -243,7 +243,7 @@ namespace CapaDatos
             {
                 using (SqlConnection conexion = new SqlConnection(Conexion.getConexion))
                 {
-                    SqlCommand cmd = new SqlCommand("UPDATE USUARIO SET CLAVE=@CLAVE, RESTABLECER=1 WHERE=IDUSUARIO=@ID", conexion);
+                    SqlCommand cmd = new SqlCommand("UPDATE USUARIO SET CLAVE=@CLAVE, RESTABLECER=1 WHERE IDUSUARIO=@ID", conexion);
 
                     cmd.Parameters.AddWithValue("CLAVE", Clave);
                     cmd.Parameters.AddWithValue("@ID", id);
@@ -251,7 +251,6 @@ namespace CapaDatos
 
                     conexion.Open();
                     resultado = cmd.ExecuteNonQuery() > 0 ? true : false;
-
                 }
             }
             catch (Exception e)

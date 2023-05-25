@@ -537,10 +537,11 @@
     <Content Include="Views\Mantenedor\Marcas.cshtml" />
     <Content Include="Views\Mantenedor\Productos.cshtml" />
     <Content Include="Views\acceso\Index.cshtml" />
+    <Content Include="Views\acceso\CambiarClave.cshtml" />
+    <Content Include="Views\acceso\RestablecerClave.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
